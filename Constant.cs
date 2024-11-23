@@ -1,6 +1,6 @@
-﻿namespace MongoRest.Controllers;
+﻿namespace MongoRest;
 
-public static class Constant
+internal static class Constant
 {
     public const string CurrentAPIVersion = "v1";
     public const string APIRootPath = $"/api/{CurrentAPIVersion}";
