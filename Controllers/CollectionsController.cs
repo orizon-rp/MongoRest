@@ -79,27 +79,51 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
     }
 
     /// <summary>
+    /// Updates the document with the specified <paramref name="id"/> in the specified collection.
+    /// </summary>
+    /// <param name="collectionName">The name of the collection to update the document in.</param>
+    /// <param name="id">The id of the document to be updated.</param>
+    /// <returns>A successful result if the document is found and updated, or a 404 if the document is not found.</returns>
+    [HttpPut("update/{id}")]
+    public async Task<IActionResult> UpdateOneAsync(string collectionName, string id, [FromBody] BsonDocument update)
+    {
+        if (string.IsNullOrWhiteSpace(collectionName))
+            return BadRequest("A collection name is required.");
+
+        var collection = database.GetCollection<BsonDocument>(collectionName);
+        
+        var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
+        var result = await collection.UpdateOneAsync(filter, new BsonDocument("$set", update));
+        
+        if (result.ModifiedCount is 0)
+            return NotFound();
+
+        return Ok();
+    }
+    
+    /// <summary>
     /// Updates documents in the specified collection according to the filter and update documents.
     /// </summary>
     /// <param name="collectionName">The name of the collection to update the documents in.</param>
     /// <param name="updateRequest">A request containing the filter and update documents.</param>
     /// <returns>A successful result with the number of documents matched and modified.</returns>
-    [HttpPost("update")]
+    [HttpPut("update")]
     public async Task<IActionResult> UpdateAsync(string collectionName, [FromBody] UpdateRequest updateRequest)
     {
         if (string.IsNullOrWhiteSpace(collectionName))
             return BadRequest("A collection name is required.");
 
         var collection = database.GetCollection<BsonDocument>(collectionName);
+        
         var result =
             await collection.UpdateManyAsync(updateRequest.Filter, new BsonDocument("$set", updateRequest.Update));
 
-        return Ok(new
+        if (result.ModifiedCount is 0)
         {
-            message = "Update successful.",
-            matchedCount = result.MatchedCount,
-            modifiedCount = result.ModifiedCount
-        });
+            return NotFound();
+        }
+
+        return Ok();
     }
 
     /// <summary>
@@ -142,11 +166,10 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
         var collection = database.GetCollection<BsonDocument>(collectionName);
         var result = await collection.DeleteManyAsync(filter);
 
-        return Ok(new
-        {
-            message = "Delete successful.",
-            deletedCount = result.DeletedCount
-        });
+        if (result.DeletedCount is 0)
+            return NotFound(new { message = "Document not found." });
+
+        return Ok();
     }
 
     /// <summary>
