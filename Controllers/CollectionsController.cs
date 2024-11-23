@@ -94,13 +94,35 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
     /// <param name="id">The id of the document to be deleted. If not provided, all documents matching the filter will be deleted.</param>
     /// <returns>A successful result with the number of documents deleted.</returns>
     [HttpDelete("delete/{id}")]
-    public async Task<IActionResult> DeleteByIdAsync(string collectionName, string id)
+    public async Task<IActionResult> DeleteOneByIdAsync(string collectionName, string id)
     {
         if (string.IsNullOrWhiteSpace(collectionName))
             return BadRequest("A collection name is required.");
 
         var collection = database.GetCollection<BsonDocument>(collectionName);
         var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
+        var result = await collection.DeleteOneAsync(filter);
+
+        return Ok(new
+        {
+            message = "Delete successful.",
+            deletedCount = result.DeletedCount
+        });
+    }
+
+    /// <summary>
+    /// Deletes one document from the specified collection according to the filter.
+    /// </summary>
+    /// <param name="collectionName">The name of the collection to delete the document from.</param>
+    /// <param name="filter">The filter to apply to the document to be deleted.</param>
+    /// <returns>A successful result with the number of documents deleted.</returns>
+    [HttpPost("delete")]
+    public async Task<IActionResult> DeleteOneAsync(string collectionName, [FromBody] BsonDocument filter)
+    {
+        if (string.IsNullOrWhiteSpace(collectionName))
+            return BadRequest("A collection name is required.");
+
+        var collection = database.GetCollection<BsonDocument>(collectionName);
         var result = await collection.DeleteOneAsync(filter);
 
         return Ok(new
