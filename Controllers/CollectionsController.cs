@@ -39,7 +39,6 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
     /// </summary>
     /// <param name="collectionName">The name of the collection to retrieve the document from.</param>
     /// <param name="id">The id of the document to be retrieved.</param>
-    /// <param name="limit">An optional limit to the number of documents returned. Defaults to 100.</param>
     /// <returns>A successful result with the retrieved document, or a 404 if the document is not found.</returns>
     [HttpGet("get/{id}")]
     public async Task<IActionResult> GetAsync(string collectionName, string id)
