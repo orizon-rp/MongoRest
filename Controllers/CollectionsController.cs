@@ -130,7 +130,7 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
     /// <param name="filter">The filter to apply to the document to be deleted.</param>
     /// <returns>A successful result with the number of documents deleted.</returns>
     [HttpPost("delete")]
-    public async Task<IActionResult> DeleteAllAsync(string collectionName, [FromBody] BsonDocument filter)
+    public async Task<IActionResult> DeleteManyAsync(string collectionName, [FromBody] BsonDocument filter)
     {
         if (string.IsNullOrWhiteSpace(collectionName))
             return BadRequest("A collection name is required.");
