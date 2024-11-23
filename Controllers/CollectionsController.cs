@@ -45,7 +45,7 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
     {
         if (string.IsNullOrWhiteSpace(collectionName))
             return BadRequest("A collection name is required.");
-        
+
         if (string.IsNullOrWhiteSpace(id))
             return BadRequest("An id is required.");
 
@@ -113,7 +113,7 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
     {
         if (string.IsNullOrWhiteSpace(collectionName))
             return BadRequest("A collection name is required.");
-        
+
         if (string.IsNullOrWhiteSpace(id))
             return BadRequest("An id is required.");
 
@@ -121,13 +121,12 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
         var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
         var result = await collection.DeleteOneAsync(filter);
 
-        return Ok(new
-        {
-            message = "Delete successful.",
-            deletedCount = result.DeletedCount
-        });
+        if (result.DeletedCount is 0)
+            return NotFound(new { message = "Document not found." });
+
+        return Ok();
     }
-    
+
     /// <summary>
     /// Deletes one document from the specified collection according to the filter.
     /// </summary>
@@ -149,7 +148,7 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
             deletedCount = result.DeletedCount
         });
     }
-    
+
     /// <summary>
     /// Retrieves the count of documents in the specified collection that match the specified id.
     /// </summary>
@@ -161,14 +160,14 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
     {
         if (string.IsNullOrWhiteSpace(collectionName))
             return BadRequest("A collection name is required.");
-        
+
         if (string.IsNullOrWhiteSpace(id))
             return BadRequest("An id is required.");
 
         var collection = database.GetCollection<BsonDocument>(collectionName);
         var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
         var count = await collection.CountDocumentsAsync(filter);
-        
+
         return Ok(count);
     }
 
@@ -183,10 +182,10 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
     {
         if (string.IsNullOrWhiteSpace(collectionName))
             return BadRequest("A collection name is required.");
-        
+
         var collection = database.GetCollection<BsonDocument>(collectionName);
         var count = await collection.CountDocumentsAsync(filter);
-        
+
         return Ok(count);
     }
 }
