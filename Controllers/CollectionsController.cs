@@ -45,6 +45,9 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
     {
         if (string.IsNullOrWhiteSpace(collectionName))
             return BadRequest("A collection name is required.");
+        
+        if (string.IsNullOrWhiteSpace(id))
+            return BadRequest("An id is required.");
 
         var collection = database.GetCollection<BsonDocument>(collectionName);
 
@@ -110,6 +113,9 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
     {
         if (string.IsNullOrWhiteSpace(collectionName))
             return BadRequest("A collection name is required.");
+        
+        if (string.IsNullOrWhiteSpace(id))
+            return BadRequest("An id is required.");
 
         var collection = database.GetCollection<BsonDocument>(collectionName);
         var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
@@ -142,5 +148,21 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
             message = "Delete successful.",
             deletedCount = result.DeletedCount
         });
+    }
+    
+    [HttpGet("count/{id}")]
+    public async Task<IActionResult> ExistAsync(string collectionName, string id)
+    {
+        if (string.IsNullOrWhiteSpace(collectionName))
+            return BadRequest("A collection name is required.");
+        
+        if (string.IsNullOrWhiteSpace(id))
+            return BadRequest("An id is required.");
+
+        var collection = database.GetCollection<BsonDocument>(collectionName);
+        var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
+        var count = await collection.CountDocumentsAsync(filter);
+        
+        return Ok(count);
     }
 }
