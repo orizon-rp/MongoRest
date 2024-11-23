@@ -6,7 +6,7 @@ using MongoRest.Models;
 namespace MongoRest.Controllers;
 
 [ApiController]
-[Route($"{Constant.APIRootPath}/[controller]")]
+[Route($"{Constants.APIRootPath}/[controller]")]
 public sealed class CollectionsController(IMongoDatabase database) : ControllerBase
 {
     /// <summary>
