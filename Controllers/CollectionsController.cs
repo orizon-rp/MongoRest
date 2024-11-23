@@ -150,6 +150,12 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
         });
     }
     
+    /// <summary>
+    /// Retrieves the count of documents in the specified collection that match the specified id.
+    /// </summary>
+    /// <param name="collectionName">The name of the collection to count the documents in.</param>
+    /// <param name="id">The id of the documents to be counted.</param>
+    /// <returns>A successful result with the count of documents matching the specified id.</returns>
     [HttpGet("count/{id}")]
     public async Task<IActionResult> CountAsync(string collectionName, string id)
     {
@@ -166,6 +172,12 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
         return Ok(count);
     }
 
+    /// <summary>
+    /// Retrieves the count of all documents in the specified collection that match the specified filter.
+    /// </summary>
+    /// <param name="collectionName">The name of the collection to count the documents in.</param>
+    /// <param name="filter">The filter to apply to the documents to be counted.</param>
+    /// <returns>A successful result with the count of documents matching the specified filter.</returns>
     [HttpGet("count")]
     public async Task<IActionResult> CountAllAsync(string collectionName, [FromQuery] BsonDocument filter)
     {
