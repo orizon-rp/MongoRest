@@ -40,7 +40,7 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
     /// <param name="collectionName">The name of the collection to retrieve the document from.</param>
     /// <param name="id">The id of the document to be retrieved.</param>
     /// <returns>A successful result with the document if found, otherwise a 404 not found error.</returns>
-    [HttpGet("{collectionName}")]
+    [HttpGet("{collectionName}/get")]
     public async Task<IActionResult> GetAsync(string collectionName, [FromQuery] string? id = null)
     {
         if (string.IsNullOrWhiteSpace(collectionName))
@@ -50,7 +50,7 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
 
         if (id is not null)
         {
-            var filter = Builders<BsonDocument>.Filter.Eq("_id", ObjectId.Parse(id));
+            var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
             var document = await collection.Find(filter).FirstOrDefaultAsync();
 
             if (document is null)
@@ -86,7 +86,7 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
             modifiedCount = result.ModifiedCount
         });
     }
-
+    
     [HttpPost("{collectionName}/delete")]
     public async Task<IActionResult> DeleteAsync(string collectionName, [FromBody] BsonDocument filter)
     {
