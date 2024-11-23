@@ -107,7 +107,7 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
     /// <param name="id">The id of the document to be deleted. If not provided, all documents matching the filter will be deleted.</param>
     /// <returns>A successful result with the number of documents deleted.</returns>
     [HttpDelete("delete/{id}")]
-    public async Task<IActionResult> DeleteOneAsync(string collectionName, string id)
+    public async Task<IActionResult> DeleteAsync(string collectionName, string id)
     {
         if (string.IsNullOrWhiteSpace(collectionName))
             return BadRequest("A collection name is required.");
