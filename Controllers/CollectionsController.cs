@@ -151,7 +151,7 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
     }
     
     [HttpGet("count/{id}")]
-    public async Task<IActionResult> ExistAsync(string collectionName, string id)
+    public async Task<IActionResult> CountAsync(string collectionName, string id)
     {
         if (string.IsNullOrWhiteSpace(collectionName))
             return BadRequest("A collection name is required.");
@@ -161,6 +161,18 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
 
         var collection = database.GetCollection<BsonDocument>(collectionName);
         var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
+        var count = await collection.CountDocumentsAsync(filter);
+        
+        return Ok(count);
+    }
+
+    [HttpGet("count")]
+    public async Task<IActionResult> CountAllAsync(string collectionName, [FromQuery] BsonDocument filter)
+    {
+        if (string.IsNullOrWhiteSpace(collectionName))
+            return BadRequest("A collection name is required.");
+        
+        var collection = database.GetCollection<BsonDocument>(collectionName);
         var count = await collection.CountDocumentsAsync(filter);
         
         return Ok(count);
