@@ -15,8 +15,8 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
     /// <param name="collectionName">The name of the collection to create the document in.</param>
     /// <param name="document">The document to be created.</param>
     /// <returns>A successful result with a message indicating the document was created successfully.</returns>
-    [HttpPost("create")]
-    public async Task<IActionResult> CreateAsync(string collectionName, [FromBody] BsonDocument document)
+    [HttpPost("insert")]
+    public async Task<IActionResult> InsertOneAsync(string collectionName, [FromBody] BsonDocument document)
     {
         if (string.IsNullOrWhiteSpace(collectionName))
             return BadRequest("A collection name is required.");
@@ -26,40 +26,14 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
             var collection = database.GetCollection<BsonDocument>(collectionName);
             await collection.InsertOneAsync(document);
 
-            return Ok(new { message = "Document created successfully." });
+            return Ok(new { message = "Document inserted successfully." });
         }
         catch (Exception ex)
         {
             return StatusCode(500, new { message = "Insertion failed.", error = ex.Message });
         }
     }
-
-    /// <summary>
-    /// Retrieves the document with the specified <paramref name="id"/> from the specified collection.
-    /// </summary>
-    /// <param name="collectionName">The name of the collection to retrieve the document from.</param>
-    /// <param name="id">The id of the document to be retrieved.</param>
-    /// <returns>A successful result with the retrieved document, or a 404 if the document is not found.</returns>
-    [HttpGet("get/{id}")]
-    public async Task<IActionResult> GetAsync(string collectionName, string id)
-    {
-        if (string.IsNullOrWhiteSpace(collectionName))
-            return BadRequest("A collection name is required.");
-
-        if (string.IsNullOrWhiteSpace(id))
-            return BadRequest("An id is required.");
-
-        var collection = database.GetCollection<BsonDocument>(collectionName);
-
-        var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
-        var document = await collection.Find(filter).FirstOrDefaultAsync();
-
-        if (document is null)
-            return NotFound(new { message = "Document not found." });
-
-        return Ok(document);
-    }
-
+    
     /// <summary>
     /// Retrieves all documents from the specified collection.
     /// </summary>
@@ -67,7 +41,7 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
     /// <param name="limit">An optional limit to the number of documents returned. Defaults to 100.</param>
     /// <returns>A successful result with the retrieved documents, limited to the specified limit.</returns>
     [HttpGet("get")]
-    public async Task<IActionResult> GetAllAsync(string collectionName, [FromQuery] int limit = 100)
+    public async Task<IActionResult> GetAsync(string collectionName, [FromQuery] int limit = 100)
     {
         if (string.IsNullOrWhiteSpace(collectionName))
             return BadRequest("A collection name is required.");
@@ -76,29 +50,6 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
 
         var documents = await collection.Find(new BsonDocument()).ToListAsync();
         return Ok(documents.Take(limit));
-    }
-
-    /// <summary>
-    /// Updates the document with the specified <paramref name="id"/> in the specified collection.
-    /// </summary>
-    /// <param name="collectionName">The name of the collection to update the document in.</param>
-    /// <param name="id">The id of the document to be updated.</param>
-    /// <returns>A successful result if the document is found and updated, or a 404 if the document is not found.</returns>
-    [HttpPut("update/{id}")]
-    public async Task<IActionResult> UpdateOneAsync(string collectionName, string id, [FromBody] BsonDocument update)
-    {
-        if (string.IsNullOrWhiteSpace(collectionName))
-            return BadRequest("A collection name is required.");
-
-        var collection = database.GetCollection<BsonDocument>(collectionName);
-        
-        var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
-        var result = await collection.UpdateOneAsync(filter, new BsonDocument("$set", update));
-        
-        if (result.ModifiedCount is 0)
-            return NotFound();
-
-        return Ok();
     }
     
     /// <summary>
@@ -125,38 +76,13 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
     }
 
     /// <summary>
-    /// Deletes documents from the specified collection according to the filter.
-    /// </summary>
-    /// <param name="collectionName">The name of the collection to delete the documents from.</param>
-    /// <param name="id">The id of the document to be deleted. If not provided, all documents matching the filter will be deleted.</param>
-    /// <returns>A successful result with the number of documents deleted.</returns>
-    [HttpDelete("delete/{id}")]
-    public async Task<IActionResult> DeleteAsync(string collectionName, string id)
-    {
-        if (string.IsNullOrWhiteSpace(collectionName))
-            return BadRequest("A collection name is required.");
-
-        if (string.IsNullOrWhiteSpace(id))
-            return BadRequest("An id is required.");
-
-        var collection = database.GetCollection<BsonDocument>(collectionName);
-        var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
-        var result = await collection.DeleteOneAsync(filter);
-
-        if (result.DeletedCount is 0)
-            return NotFound(new { message = "Document not found." });
-
-        return Ok();
-    }
-
-    /// <summary>
     /// Deletes one document from the specified collection according to the filter.
     /// </summary>
     /// <param name="collectionName">The name of the collection to delete the document from.</param>
     /// <param name="filter">The filter to apply to the document to be deleted.</param>
     /// <returns>A successful result with the number of documents deleted.</returns>
     [HttpPost("delete")]
-    public async Task<IActionResult> DeleteManyAsync(string collectionName, [FromBody] BsonDocument filter)
+    public async Task<IActionResult> DeleteAsync(string collectionName, [FromBody] BsonDocument filter)
     {
         if (string.IsNullOrWhiteSpace(collectionName))
             return BadRequest("A collection name is required.");
@@ -168,28 +94,6 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
             return NotFound(new { message = "Document not found." });
 
         return Ok();
-    }
-
-    /// <summary>
-    /// Retrieves the count of documents in the specified collection that match the specified id.
-    /// </summary>
-    /// <param name="collectionName">The name of the collection to count the documents in.</param>
-    /// <param name="id">The id of the documents to be counted.</param>
-    /// <returns>A successful result with the count of documents matching the specified id.</returns>
-    [HttpGet("count/{id}")]
-    public async Task<IActionResult> CountAsync(string collectionName, string id)
-    {
-        if (string.IsNullOrWhiteSpace(collectionName))
-            return BadRequest("A collection name is required.");
-
-        if (string.IsNullOrWhiteSpace(id))
-            return BadRequest("An id is required.");
-
-        var collection = database.GetCollection<BsonDocument>(collectionName);
-        var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
-        var count = await collection.CountDocumentsAsync(filter);
-
-        return Ok(count);
     }
 
     /// <summary>
