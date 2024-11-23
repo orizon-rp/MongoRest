@@ -101,7 +101,7 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
 
         var collection = database.GetCollection<BsonDocument>(collectionName);
         var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
-        var result = await collection.DeleteManyAsync(filter);
+        var result = await collection.DeleteOneAsync(filter);
 
         return Ok(new
         {
