@@ -178,8 +178,8 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
     /// <param name="collectionName">The name of the collection to count the documents in.</param>
     /// <param name="filter">The filter to apply to the documents to be counted.</param>
     /// <returns>A successful result with the count of documents matching the specified filter.</returns>
-    [HttpGet("count")]
-    public async Task<IActionResult> CountAllAsync(string collectionName, [FromQuery] BsonDocument filter)
+    [HttpPost("count")]
+    public async Task<IActionResult> CountAllAsync(string collectionName, [FromBody] BsonDocument filter)
     {
         if (string.IsNullOrWhiteSpace(collectionName))
             return BadRequest("A collection name is required.");
