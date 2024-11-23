@@ -136,7 +136,7 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
             return BadRequest("A collection name is required.");
 
         var collection = database.GetCollection<BsonDocument>(collectionName);
-        var result = await collection.DeleteOneAsync(filter);
+        var result = await collection.DeleteManyAsync(filter);
 
         return Ok(new
         {
