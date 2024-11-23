@@ -6,7 +6,7 @@ using MongoRest.Models;
 namespace MongoRest.Controllers;
 
 [ApiController]
-[Route($"{Constants.APIRootPath}/[controller]")]
+[Route($"{Constants.APIRootPath}/[controller]/{{collectionName}}")]
 public sealed class CollectionsController(IMongoDatabase database) : ControllerBase
 {
     /// <summary>
@@ -15,7 +15,7 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
     /// <param name="collectionName">The name of the collection to create the document in.</param>
     /// <param name="document">The document to be created.</param>
     /// <returns>A successful result with a message indicating the document was created successfully.</returns>
-    [HttpPost("{collectionName}/create")]
+    [HttpPost("create")]
     public async Task<IActionResult> CreateAsync(string collectionName, [FromBody] BsonDocument document)
     {
         if (string.IsNullOrWhiteSpace(collectionName))
@@ -40,7 +40,7 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
     /// <param name="collectionName">The name of the collection to retrieve the document from.</param>
     /// <param name="id">The id of the document to be retrieved.</param>
     /// <returns>A successful result with the document if found, otherwise a 404 not found error.</returns>
-    [HttpGet("{collectionName}/get")]
+    [HttpGet("get")]
     public async Task<IActionResult> GetAsync(string collectionName, [FromQuery] string? id = null)
     {
         if (string.IsNullOrWhiteSpace(collectionName))
@@ -69,7 +69,7 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
     /// <param name="collectionName">The name of the collection to update the documents in.</param>
     /// <param name="updateRequest">A request containing the filter and update documents.</param>
     /// <returns>A successful result with the number of documents matched and modified.</returns>
-    [HttpPost("{collectionName}/update")]
+    [HttpPost("update")]
     public async Task<IActionResult> UpdateAsync(string collectionName, [FromBody] UpdateRequest updateRequest)
     {
         if (string.IsNullOrWhiteSpace(collectionName))
@@ -93,7 +93,7 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
     /// <param name="collectionName">The name of the collection to delete the documents from.</param>
     /// <param name="id">The id of the document to be deleted. If not provided, all documents matching the filter will be deleted.</param>
     /// <returns>A successful result with the number of documents deleted.</returns>
-    [HttpDelete("{collectionName}/delete/{id}")]
+    [HttpDelete("delete/{id}")]
     public async Task<IActionResult> DeleteByIdAsync(string collectionName, string id)
     {
         if (string.IsNullOrWhiteSpace(collectionName))
