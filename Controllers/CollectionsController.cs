@@ -87,6 +87,12 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
         });
     }
     
+    /// <summary>
+    /// Deletes documents in the specified collection according to the filter.
+    /// </summary>
+    /// <param name="collectionName">The name of the collection to delete the documents in.</param>
+    /// <param name="filter">A filter document to select the documents to be deleted.</param>
+    /// <returns>A successful result with the number of documents deleted.</returns>
     [HttpPost("{collectionName}/delete")]
     public async Task<IActionResult> DeleteAsync(string collectionName, [FromBody] BsonDocument filter)
     {
