@@ -20,9 +20,16 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
         if (string.IsNullOrWhiteSpace(collectionName))
             return BadRequest("A collection name is required.");
 
-        var collection = database.GetCollection<BsonDocument>(collectionName);
-        await collection.InsertOneAsync(document);
+        try
+        {
+            var collection = database.GetCollection<BsonDocument>(collectionName);
+            await collection.InsertOneAsync(document);
 
-        return Ok(new { message = "Document created successfully." });
+            return Ok(new { message = "Document created successfully." });   
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Insertion failed.", error = ex.Message });
+        }
     }
 }
