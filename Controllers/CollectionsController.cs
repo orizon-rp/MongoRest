@@ -58,6 +58,23 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
     }
 
     /// <summary>
+    /// Retrieves all documents from the specified collection.
+    /// </summary>
+    /// <param name="collectionName">The name of the collection to retrieve the documents from.</param>
+    /// <returns>A successful result with all documents in the collection.</returns>
+    [HttpGet("get")]
+    public async Task<IActionResult> GetAllAsync(string collectionName)
+    {
+        if (string.IsNullOrWhiteSpace(collectionName))
+            return BadRequest("A collection name is required.");
+        
+        var collection = database.GetCollection<BsonDocument>(collectionName);
+        
+        var documents = await collection.Find(new BsonDocument()).ToListAsync();
+        return Ok(documents);
+    }
+
+    /// <summary>
     /// Updates documents in the specified collection according to the filter and update documents.
     /// </summary>
     /// <param name="collectionName">The name of the collection to update the documents in.</param>
