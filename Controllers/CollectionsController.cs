@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoRest.Models;
 
 namespace MongoRest.Controllers;
 
@@ -60,5 +61,45 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
 
         var documents = await collection.Find(Builders<BsonDocument>.Filter.Empty).ToListAsync();
         return Ok(documents);
+    }
+
+    /// <summary>
+    /// Updates documents in the specified collection according to the filter and update documents.
+    /// </summary>
+    /// <param name="collectionName">The name of the collection to update the documents in.</param>
+    /// <param name="updateRequest">A request containing the filter and update documents.</param>
+    /// <returns>A successful result with the number of documents matched and modified.</returns>
+    [HttpPost("{collectionName}/update")]
+    public async Task<IActionResult> UpdateAsync(string collectionName, [FromBody] UpdateRequest updateRequest)
+    {
+        if (string.IsNullOrWhiteSpace(collectionName))
+            return BadRequest("A collection name is required.");
+
+        var collection = database.GetCollection<BsonDocument>(collectionName);
+        var result =
+            await collection.UpdateManyAsync(updateRequest.Filter, new BsonDocument("$set", updateRequest.Update));
+
+        return Ok(new
+        {
+            message = "Update successful.",
+            matchedCount = result.MatchedCount,
+            modifiedCount = result.ModifiedCount
+        });
+    }
+
+    [HttpPost("{collectionName}/delete")]
+    public async Task<IActionResult> DeleteAsync(string collectionName, [FromBody] BsonDocument filter)
+    {
+        if (string.IsNullOrWhiteSpace(collectionName))
+            return BadRequest("A collection name is required.");
+
+        var collection = database.GetCollection<BsonDocument>(collectionName);
+        var result = await collection.DeleteManyAsync(filter);
+
+        return Ok(new
+        {
+            message = "Delete successful.",
+            deletedCount = result.DeletedCount
+        });
     }
 }
