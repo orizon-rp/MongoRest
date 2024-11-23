@@ -40,27 +40,21 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
     /// <param name="collectionName">The name of the collection to retrieve the document from.</param>
     /// <param name="id">The id of the document to be retrieved.</param>
     /// <returns>A successful result with the document if found, otherwise a 404 not found error.</returns>
-    [HttpGet("get")]
-    public async Task<IActionResult> GetAsync(string collectionName, [FromQuery] string? id = null)
+    [HttpGet("get/{id}")]
+    public async Task<IActionResult> GetByIdAsync(string collectionName, string id)
     {
         if (string.IsNullOrWhiteSpace(collectionName))
             return BadRequest("A collection name is required.");
 
         var collection = database.GetCollection<BsonDocument>(collectionName);
 
-        if (id is not null)
-        {
-            var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
-            var document = await collection.Find(filter).FirstOrDefaultAsync();
+        var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
+        var document = await collection.Find(filter).FirstOrDefaultAsync();
 
-            if (document is null)
-                return NotFound(new { message = "Document not found." });
+        if (document is null)
+            return NotFound(new { message = "Document not found." });
 
-            return Ok(document);
-        }
-
-        var documents = await collection.Find(Builders<BsonDocument>.Filter.Empty).ToListAsync();
-        return Ok(documents);
+        return Ok(document);
     }
 
     /// <summary>
