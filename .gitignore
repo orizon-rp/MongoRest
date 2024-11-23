@@ -18,6 +18,8 @@ Exports/*
 code/obj/*
 code/Properties/*
 
+*.Development.json
+
 # Auto-generated asset related files
 *.generated.*
 *.*_c
