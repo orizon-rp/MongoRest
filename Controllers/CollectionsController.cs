@@ -42,7 +42,7 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
     /// <param name="limit">An optional limit to the number of documents returned. Defaults to 100.</param>
     /// <returns>A successful result with the retrieved document, or a 404 if the document is not found.</returns>
     [HttpGet("get/{id}")]
-    public async Task<IActionResult> GetByIdAsync(string collectionName, string id)
+    public async Task<IActionResult> GetAsync(string collectionName, string id)
     {
         if (string.IsNullOrWhiteSpace(collectionName))
             return BadRequest("A collection name is required.");
@@ -107,7 +107,7 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
     /// <param name="id">The id of the document to be deleted. If not provided, all documents matching the filter will be deleted.</param>
     /// <returns>A successful result with the number of documents deleted.</returns>
     [HttpDelete("delete/{id}")]
-    public async Task<IActionResult> DeleteOneByIdAsync(string collectionName, string id)
+    public async Task<IActionResult> DeleteOneAsync(string collectionName, string id)
     {
         if (string.IsNullOrWhiteSpace(collectionName))
             return BadRequest("A collection name is required.");
@@ -122,7 +122,7 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
             deletedCount = result.DeletedCount
         });
     }
-
+    
     /// <summary>
     /// Deletes one document from the specified collection according to the filter.
     /// </summary>
@@ -130,7 +130,7 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
     /// <param name="filter">The filter to apply to the document to be deleted.</param>
     /// <returns>A successful result with the number of documents deleted.</returns>
     [HttpPost("delete")]
-    public async Task<IActionResult> DeleteOneAsync(string collectionName, [FromBody] BsonDocument filter)
+    public async Task<IActionResult> DeleteAllAsync(string collectionName, [FromBody] BsonDocument filter)
     {
         if (string.IsNullOrWhiteSpace(collectionName))
             return BadRequest("A collection name is required.");
