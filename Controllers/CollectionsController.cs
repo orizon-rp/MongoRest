@@ -119,9 +119,7 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
             await collection.UpdateManyAsync(updateRequest.Filter, new BsonDocument("$set", updateRequest.Update));
 
         if (result.ModifiedCount is 0)
-        {
             return NotFound();
-        }
 
         return Ok();
     }
