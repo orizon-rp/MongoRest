@@ -9,13 +9,13 @@ builder.Services.AddControllers();
 
 builder.Services.AddSingleton<IMongoClient, MongoClient>(sp =>
 {
-    var connectionString = builder.Configuration.GetConnectionString("MongoDb");
+    var connectionString = builder.Configuration.GetValue<string>("MongoDb");
     return new MongoClient(connectionString);
 });
 
 builder.Services.AddScoped(sp =>
 {
-    var dbName = builder.Configuration.GetConnectionString("MongoDb");
+    var dbName = builder.Configuration.GetValue<string>("DatabaseName");
 
     var client = sp.GetRequiredService<IMongoClient>();
     return client.GetDatabase(dbName);
