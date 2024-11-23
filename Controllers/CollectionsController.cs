@@ -10,13 +10,13 @@ namespace MongoRest.Controllers;
 public sealed class CollectionsController(IMongoDatabase database) : ControllerBase
 {
     /// <summary>
-    /// Creates a new document in the specified collection.
+    /// Inserts one or more documents into the specified collection.
     /// </summary>
-    /// <param name="collectionName">The name of the collection to create the document in.</param>
-    /// <param name="document">The document to be created.</param>
-    /// <returns>A successful result with a message indicating the document was created successfully.</returns>
+    /// <param name="collectionName">The name of the collection to insert the documents into.</param>
+    /// <param name="documents">One or more documents to be inserted.</param>
+    /// <returns>A successful result with a message indicating the number of documents inserted.</returns>
     [HttpPost("insert")]
-    public async Task<IActionResult> InsertOneAsync(string collectionName, [FromBody] BsonDocument document)
+    public async Task<IActionResult> InsertAsync(string collectionName, [FromBody] List<BsonDocument> documents)
     {
         if (string.IsNullOrWhiteSpace(collectionName))
             return BadRequest("A collection name is required.");
@@ -24,7 +24,7 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
         try
         {
             var collection = database.GetCollection<BsonDocument>(collectionName);
-            await collection.InsertOneAsync(document);
+            await collection.InsertManyAsync(documents);
 
             return Ok(new { message = "Document inserted successfully." });
         }
