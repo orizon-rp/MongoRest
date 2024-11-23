@@ -35,11 +35,12 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
     }
 
     /// <summary>
-    /// Retrieves a document from the specified collection by id.
+    /// Retrieves the document with the specified <paramref name="id"/> from the specified collection.
     /// </summary>
     /// <param name="collectionName">The name of the collection to retrieve the document from.</param>
     /// <param name="id">The id of the document to be retrieved.</param>
-    /// <returns>A successful result with the document if found, otherwise a 404 not found error.</returns>
+    /// <param name="limit">An optional limit to the number of documents returned. Defaults to 100.</param>
+    /// <returns>A successful result with the retrieved document, or a 404 if the document is not found.</returns>
     [HttpGet("get/{id}")]
     public async Task<IActionResult> GetByIdAsync(string collectionName, string id)
     {
@@ -61,17 +62,18 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
     /// Retrieves all documents from the specified collection.
     /// </summary>
     /// <param name="collectionName">The name of the collection to retrieve the documents from.</param>
-    /// <returns>A successful result with all documents in the collection.</returns>
+    /// <param name="limit">An optional limit to the number of documents returned. Defaults to 100.</param>
+    /// <returns>A successful result with the retrieved documents, limited to the specified limit.</returns>
     [HttpGet("get")]
-    public async Task<IActionResult> GetAllAsync(string collectionName)
+    public async Task<IActionResult> GetAllAsync(string collectionName, [FromQuery] int limit = 100)
     {
         if (string.IsNullOrWhiteSpace(collectionName))
             return BadRequest("A collection name is required.");
-        
+
         var collection = database.GetCollection<BsonDocument>(collectionName);
-        
+
         var documents = await collection.Find(new BsonDocument()).ToListAsync();
-        return Ok(documents);
+        return Ok(documents.Take(limit));
     }
 
     /// <summary>
@@ -97,7 +99,7 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
             modifiedCount = result.ModifiedCount
         });
     }
-    
+
     /// <summary>
     /// Deletes documents from the specified collection according to the filter.
     /// </summary>
