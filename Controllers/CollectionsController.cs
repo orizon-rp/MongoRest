@@ -35,21 +35,22 @@ public sealed class CollectionsController(IMongoDatabase database) : ControllerB
     }
     
     /// <summary>
-    /// Retrieves all documents from the specified collection.
+    /// Retrieves documents from the specified collection according to the filter.
     /// </summary>
     /// <param name="collectionName">The name of the collection to retrieve the documents from.</param>
-    /// <param name="limit">An optional limit to the number of documents returned. Defaults to 100.</param>
-    /// <returns>A successful result with the retrieved documents, limited to the specified limit.</returns>
-    [HttpGet("get")]
-    public async Task<IActionResult> GetAsync(string collectionName, [FromQuery] int limit = 100)
+    /// <param name="filter">The filter to apply to the documents to be retrieved.</param>
+    /// <param name="limit">The maximum number of documents to be retrieved. Defaults to 100.</param>
+    /// <returns>A successful result with the retrieved documents.</returns>
+    [HttpPost("get")]
+    public async Task<IActionResult> GetAsync(string collectionName, [FromBody] BsonDocument filter, [FromQuery] int limit = 100)
     {
         if (string.IsNullOrWhiteSpace(collectionName))
             return BadRequest("A collection name is required.");
-
+        
         var collection = database.GetCollection<BsonDocument>(collectionName);
-
-        var documents = await collection.Find(new BsonDocument()).ToListAsync();
-        return Ok(documents.Take(limit));
+        var documents = await collection.Find(filter).Limit(limit).ToListAsync();
+        
+        return Ok(documents);
     }
     
     /// <summary>
