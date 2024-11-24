@@ -4,13 +4,10 @@ using MongoRest.Converters;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = string.Empty;
-var dbName = string.Empty;
-
 #region Environment Variables
 
-connectionString = Environment.GetEnvironmentVariable("MONGO_URL")!;
-dbName = Environment.GetEnvironmentVariable("MONGO_DB_NAME")!;
+var connectionString = Environment.GetEnvironmentVariable("MONGO_URL")!;
+var dbName = Environment.GetEnvironmentVariable("MONGO_DB_NAME")!;
 
 if (string.IsNullOrEmpty(connectionString))
     throw new Exception("MONGO_URL environment variable is not set.");
