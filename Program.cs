@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using MongoDB.Driver;
 using MongoRest.Converters;
 
@@ -47,6 +46,7 @@ app.Urls.Add($"https://+:{appPort}");
 
 app.Run();
 
+// Only used for unit tests
 public partial class Program
 {
 }
