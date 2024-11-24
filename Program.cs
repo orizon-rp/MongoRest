@@ -7,14 +7,12 @@ var builder = WebApplication.CreateBuilder(args);
 #region Environment Variables
 
 var appPort = Environment.GetEnvironmentVariable("APP_PORT") ?? "443";
-var connectionString = Environment.GetEnvironmentVariable("MONGO_URL")!;
-var dbName = Environment.GetEnvironmentVariable("MONGO_DB_NAME")!;
+var connectionString = Environment.GetEnvironmentVariable("MONGO_URL") ?? "mongodb://localhost:27017";
+var dbName = Environment.GetEnvironmentVariable("MONGO_DB_NAME") ?? "MongoRest";
 
-if (string.IsNullOrEmpty(connectionString))
-    throw new Exception("MONGO_URL environment variable is not set.");
-
-if (string.IsNullOrEmpty(dbName))
-    throw new Exception("MONGO_DB_NAME environment variable is not set.");
+Console.WriteLine("App running on port " + appPort);
+Console.WriteLine("MongoDB connection url" + connectionString);
+Console.WriteLine("MongoDB database name" + dbName);
 
 #endregion
 
