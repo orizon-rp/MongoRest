@@ -6,6 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 #region Environment Variables
 
+var appPort = Environment.GetEnvironmentVariable("APP_PORT") ?? "443";
 var connectionString = Environment.GetEnvironmentVariable("MONGO_URL")!;
 var dbName = Environment.GetEnvironmentVariable("MONGO_DB_NAME")!;
 
@@ -43,6 +44,8 @@ if (app.Environment.IsDevelopment())
 
 app.MapControllers();
 app.UseHttpsRedirection();
+
+app.Urls.Add($"https://+:{appPort}");
 
 app.Run();
 
