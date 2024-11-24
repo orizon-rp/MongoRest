@@ -20,6 +20,10 @@ COPY . .
 WORKDIR "/src/MongoRest"
 RUN dotnet build "MongoRest.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
+# We don't need this file when using docker
+RUN rm run.bat
+RUN rm run.sh
+
 FROM build AS publish
 
 ARG BUILD_CONFIGURATION=Release
