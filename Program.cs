@@ -9,43 +9,14 @@ var dbName = string.Empty;
 
 #region Environment Variables
 
-void EnsureArgs()
-{
-    var options = args.Select(arg => arg.Split('=')).ToDictionary(split => split[0].Trim('-'), split => split[1]);
+connectionString = Environment.GetEnvironmentVariable("MONGO_URL")!;
+dbName = Environment.GetEnvironmentVariable("MONGO_DB_NAME")!;
 
-    options.TryGetValue("MONGO_URL", out connectionString);
-    options.TryGetValue("MONGO_DB_NAME", out dbName);
+if (string.IsNullOrEmpty(connectionString))
+    throw new Exception("MONGO_URL environment variable is not set.");
 
-    if (string.IsNullOrEmpty(connectionString))
-        throw new Exception("MONGO_URL command line argument is not set.");
-
-    if (string.IsNullOrEmpty(dbName))
-        throw new Exception("MONGO_DB_NAME command line argument is not set.");
-}
-
-void EnsureEnv()
-{
-    connectionString = Environment.GetEnvironmentVariable("MONGO_URL")!;
-    dbName = Environment.GetEnvironmentVariable("MONGO_DB_NAME")!;
-
-    if (string.IsNullOrEmpty(connectionString))
-        throw new Exception("MONGO_URL environment variable is not set.");
-
-    if (string.IsNullOrEmpty(dbName))
-        throw new Exception("MONGO_DB_NAME environment variable is not set.");
-}
-
-if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-{
-    EnsureArgs();
-}
-else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-{
-    // If the app is running in a docker container
-    if (File.Exists("/.dockerenv")) EnsureEnv();
-    // If the app is running locally
-    else EnsureArgs();
-}
+if (string.IsNullOrEmpty(dbName))
+    throw new Exception("MONGO_DB_NAME environment variable is not set.");
 
 #endregion
 
